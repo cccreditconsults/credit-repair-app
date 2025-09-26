@@ -1,14 +1,24 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Credit Repair API", version="0.1.0")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app = FastAPI(title="Credit Repair API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # allow all for testing; lock to Vercel domain later
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status":"ok"}
 
 @app.post("/upload-report")
-async def upload_report(pdf: UploadFile = File(...), bureau: str = "TransUnion"):
+async def upload_report(pdf: UploadFile = File(...)):
     data = await pdf.read()
-    return {"report_id":"demo","violations":[],"normalized":{"bureau":bureau,"bytes_received":len(data)}}
+    return {
+        "report_id": "demo",
+        "violations": [],
+        "normalized": {"bytes_received": len(data)}
+    }
