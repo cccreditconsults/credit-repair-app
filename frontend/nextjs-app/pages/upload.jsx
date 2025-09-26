@@ -6,7 +6,7 @@ export default function Upload() {
   const [status, setStatus] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const apiBase = useMemo(() => process.env.NEXT_PUBLIC_API_BASE, []);
+  const apiBase = "https://YOUR-SERVICE.up.railway.app"; // <-- put your exact Railway URL
   
   const submit = async () => {
     try {
