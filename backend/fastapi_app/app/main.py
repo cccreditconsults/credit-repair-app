@@ -9,7 +9,7 @@ from .pipeline import extract_pdf_text, normalize_report
 # -------------------------------------------------------
 # 1) UPDATE THIS with your live Vercel URL (no trailing slash)
 #    Example: "https://credit-app.vercel.app"
-VERCEL_ORIGIN = "https://YOUR-APP.vercel.app"
+VERCEL_ORIGIN = "https://credit-repair-app-one.vercel.app/upload"
 ALLOWED_ORIGINS: List[str] = [VERCEL_ORIGIN, "http://localhost:3000"]
 # -------------------------------------------------------
 
