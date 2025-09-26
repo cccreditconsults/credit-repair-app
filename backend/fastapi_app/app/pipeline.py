@@ -77,6 +77,7 @@ def normalize_report(text: str, bureau: str = "TransUnion"):
         "inquiries": inquiries
     }
 
+
 def _grab(pat, text, group=2):
     m = re.search(pat, text)
     return m.group(group if m and m.lastindex and m.lastindex >= group else 1) if m else None
