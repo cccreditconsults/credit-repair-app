@@ -6,7 +6,9 @@ export default function Upload() {
   const [status, setStatus] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const apiBase = "https://YOUR-SERVICE.up.railway.app"; // <-- put your exact Railway URL
+  const apiBase = "https://YOUR-SERVICE.up.railway.app"; // hardcode for now
+// show it on screen:
+<p>API: <code>{apiBase}</code></p>
   
   const submit = async () => {
     try {
