@@ -1,54 +1,54 @@
-import { useState, useMemo } from "react";
+import { useState } from 'react';
 
 export default function Upload() {
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState('');
   const [busy, setBusy] = useState(false);
 
-  // Use env var if set, else fall back to your Railway URL
-  const apiBase = useMemo(
-    () =>
-      process.env.NEXT_PUBLIC_API_BASE ||
-      "https://credit-repair-app-production.up.railway.app",
-    []
-  );
+  // Prefer env var; fallback to your Railway URL
+  const apiBase =
+    process.env.NEXT_PUBLIC_API_BASE ||
+    'https://credit-repair-app-production.up.railway.app';
 
   const submit = async () => {
+    setStatus('');
+    setResult(null);
     try {
-      setStatus("");
-      setResult(null);
-
       if (!apiBase) {
-        setStatus("Error: API base URL is not set.");
+        setStatus('Error: API base URL is not set.');
         return;
       }
       if (!file) {
-        setStatus("Please choose a PDF first.");
+        setStatus('Please choose a PDF first.');
+        return;
+      }
+      if (file.type && file.type !== 'application/pdf') {
+        setStatus('File must be a PDF.');
         return;
       }
 
       setBusy(true);
       const form = new FormData();
-      form.append("pdf", file); // field must be 'pdf'
+      form.append('pdf', file, file.name);
 
-      const url = `${apiBase}/upload-report`;
-      console.log("Posting to:", url);
-
-      const res = await fetch(url, { method: "POST", body: form });
+      const res = await fetch(`${apiBase}/upload-report`, {
+        method: 'POST',
+        body: form,
+      });
 
       if (!res.ok) {
-        const text = await res.text();
-        setStatus(`Request failed: ${res.status} ${res.statusText} — ${text}`);
+        const text = await res.text().catch(() => '');
+        setStatus(`Request failed: ${res.status} ${res.statusText}${text ? ' — ' + text : ''}`);
         return;
       }
 
       const data = await res.json();
       setResult(data);
-      setStatus("Done.");
+      setStatus('Done.');
     } catch (e) {
       console.error(e);
-      setStatus("Unexpected error: " + (e?.message || e));
+      setStatus(`Unexpected error: ${e?.message || e}`);
     } finally {
       setBusy(false);
     }
@@ -59,7 +59,7 @@ export default function Upload() {
       <h2>Upload Credit Report</h2>
 
       <p style={{ fontSize: 12, opacity: 0.7 }}>
-        API: <code>{apiBase || "(not set)"}</code>
+        API: <code>{apiBase || '(not set)'}</code>
       </p>
 
       <input
@@ -74,13 +74,13 @@ export default function Upload() {
         disabled={busy}
         style={{ marginLeft: 12 }}
       >
-        {busy ? "Analyzing…" : "Analyze"}
+        {busy ? 'Analyzing…' : 'Analyze'}
       </button>
 
       {status && <p style={{ marginTop: 12 }}>{status}</p>}
 
       {result && (
-        <pre style={{ marginTop: 24, background: "#f5f5f5", padding: 16 }}>
+        <pre style={{ marginTop: 24, background: '#f5f5f5', padding: 16, overflow: 'auto' }}>
 {JSON.stringify(result, null, 2)}
         </pre>
       )}
