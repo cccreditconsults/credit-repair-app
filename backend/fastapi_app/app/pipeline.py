@@ -56,4 +56,39 @@ def normalize_report(text: str, bureau: str = "TransUnion"):
             "dofd": dofd,
             "dla": dla,
             "dlp": dlp,
-            "balan
+            "balance": balance,
+            "high_credit": highcred,
+            "remarks": [],
+            "is_open": bool(re.search(r"(?i)\bOpen\b", b) and not re.search(r"(?i)\bClosed\b", b)),
+            "chargeoff": bool(re.search(r"(?i)charge[-\s]?off", b) or (status and "charge" in status.lower())),
+        })
+
+    # Inquiries (keep simple)
+    inquiries = []
+    for ln in text.splitlines():
+        m = re.search(r"(?i)\b(Inquiry|Inquiries?)[:\s]+(.+?)\s+(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})", ln)
+        if m:
+            inquiries.append({"inquirer": m.group(2).strip(), "type": "hard", "date": _date(m.group(3))})
+
+    return {
+        "bureau": bureau,
+        "tradelines": tradelines,
+        "collections": [],
+        "inquiries": inquiries
+    }
+
+def _grab(pat, text, group=2):
+    m = re.search(pat, text)
+    return m.group(group if m and m.lastindex and m.lastindex >= group else 1) if m else None
+
+def _date(s):
+    if not s: return None
+    try: return dtparse(s, dayfirst=False, fuzzy=True).date().isoformat()
+    except: return None
+
+def _num(s):
+    if not s: return None
+    try:
+        return float(re.sub(r"[^\d.\-]", "", s).replace(",", ""))
+    except:
+        return None
