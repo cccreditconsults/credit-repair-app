@@ -5,6 +5,7 @@ origins = [
     "https://YOUR-APP.vercel.app",   # <-- your real Vercel URL
     "http://localhost:3000"          # optional for local dev
 ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
