@@ -1,4 +1,12 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
+
+@app.post("/upload-report")
+async def upload_report(pdf: UploadFile = File(...)):
+    if not pdf.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=415, detail="Please upload a .pdf file")
+    data = await pdf.read()
+    return {"report_id":"demo","violations":[],"normalized":{"bytes_received":len(data)}}
+
 from fastapi.middleware.cors import CORSMiddleware
 
 origins = [
