@@ -36,7 +36,7 @@ export default function Upload() {
       setStatus('Done.');
     } catch (e) {
       console.error(e);
-      setStatus('Unexpected error. See console for details.');
+      setStatus('Unexpected error: ' + (e?.message || e));
     } finally {
       setBusy(false);
     }
