@@ -1,7 +1,5 @@
 from fastapi import FastAPI
-
-app = FastAPI(title="Credit Repair API", version="0.1.0")
-
+app = FastAPI()
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status":"ok"}
