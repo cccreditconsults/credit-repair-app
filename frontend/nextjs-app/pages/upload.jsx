@@ -1,25 +1,70 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 export default function Upload() {
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
+  const [status, setStatus] = useState('');
+  const [busy, setBusy] = useState(false);
 
+  const apiBase = useMemo(() => process.env.NEXT_PUBLIC_API_BASE, []);
+  
   const submit = async () => {
-    if (!file) return;
-    const form = new FormData();
-    form.append('pdf', file);
-    const res = await fetch(process.env.NEXT_PUBLIC_API_BASE + '/upload-report', {
-      method: 'POST',
-      body: form
-    });
-    setResult(await res.json());
+    try {
+      setStatus('');
+      setResult(null);
+      if (!apiBase) {
+        setStatus('Error: NEXT_PUBLIC_API_BASE is not set.');
+        console.error('Missing NEXT_PUBLIC_API_BASE');
+        return;
+      }
+      if (!file) {
+        setStatus('Please choose a PDF first.');
+        return;
+      }
+      setBusy(true);
+      const form = new FormData();
+      form.append('pdf', file);
+      console.log('Posting to:', apiBase + '/upload-report');
+      const res = await fetch(apiBase + '/upload-report', { method: 'POST', body: form });
+      if (!res.ok) {
+        const text = await res.text();
+        setStatus(`Request failed: ${res.status} ${res.statusText} — ${text}`);
+        return;
+      }
+      const data = await res.json();
+      setResult(data);
+      setStatus('Done.');
+    } catch (e) {
+      console.error(e);
+      setStatus('Unexpected error. See console for details.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
-    <main style={{ padding: 24 }}>
+    <main style={{ padding: 24, maxWidth: 800 }}>
       <h2>Upload Credit Report</h2>
-      <input type="file" accept="application/pdf" onChange={(e)=>setFile(e.target.files?.[0]||null)} />
-      <button onClick={submit} style={{ marginLeft: 12 }}>Analyze</button>
+      <p style={{ fontSize: 12, opacity: 0.7 }}>
+        API: <code>{apiBase || '(not set)'}</code>
+      </p>
+
+      <input
+        type="file"
+        accept="application/pdf"
+        onChange={(e) => setFile(e.target.files?.[0] || null)}
+      />
+      <button
+        type="button"
+        onClick={submit}
+        disabled={busy}
+        style={{ marginLeft: 12 }}
+      >
+        {busy ? 'Analyzing…' : 'Analyze'}
+      </button>
+
+      {status && <p style={{ marginTop: 12 }}>{status}</p>}
+
       {result && (
         <pre style={{ marginTop: 24, background: '#f5f5f5', padding: 16 }}>
 {JSON.stringify(result, null, 2)}
