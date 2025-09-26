@@ -24,3 +24,5 @@ async def upload_report(pdf: UploadFile = File(...), bureau: str = "TransUnion")
         "violations": [],
         "normalized": {"bureau": bureau, "bytes_received": len(data)}
     }
+VERCEL_ORIGIN = "https://<your-app>.vercel.app"  # your actual site URL
+ALLOWED_ORIGINS = [VERCEL_ORIGIN, "http://localhost:3000"]
