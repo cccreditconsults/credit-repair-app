@@ -51,3 +51,27 @@ async def upload_report(pdf: UploadFile = File(...), bureau: str = "TransUnion")
         "violations": [],
         "normalized": normalized,
     }
+
+from .pipeline import extract_pdf_text, normalize_report
+from . import rules
+from .db import get_client
+from datetime import date, timedelta
+
+@app.post("/upload-report")
+async def upload_report(pdf: UploadFile = File(...), bureau: str = "TransUnion"):
+    if not pdf.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=415, detail="Please upload a .pdf file")
+    data = await pdf.read()
+    text = extract_pdf_text(data)
+    normalized = normalize_report(text, bureau=bureau)
+    violations = rules.run(normalized)
+
+    sb = get_client()
+    # store normalized JSON
+    ins = sb.table("reports").insert({
+        "bureau": bureau,
+        "parsed_json": normalized
+    }).execute()
+
+    report_id = ins.data[0]["id"] if ins.data else "demo"
+    return {"report_id": report_id, "violations": violations, "normalized": normalized}
